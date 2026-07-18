@@ -82,7 +82,22 @@ export async function showGameScreen(root, levelId) {
   function startTimer() {
     if (timerStarted) return;
     timerStarted = true;
-    // Таймеры времени пока отключены. Классы LevelTimer/LevelCountdown оставлены на будущее.
+    timer.start((ms) => {
+      if (!levelActive) return;
+      elapsedMs = ms;
+    });
+    countdown.start(
+      (ms) => {
+        if (!levelActive) return;
+        remainingMs = ms;
+        updateStats();
+      },
+      () => {
+        if (!levelActive) return;
+        remainingMs = 0;
+        checkDefeat();
+      }
+    );
   }
 
   function leaveLevel(navigate) {
@@ -234,26 +249,112 @@ export async function showGameScreen(root, levelId) {
   }
 
   function checkDefeat() {
-    // Поражение отключено: игрок не проигрывает по времени, ходам или импичменту.
-    // Уровень завершается только победой (см. функцию draw()).
+    if (won || impeached) return;
+    if (remainingMs <= 0) {
+      handleImpeachment();
+    } else if (remainingMoves <= 0) {
+      handleImpeachment();
+    }
   }
 
   function onCell(r, c) {
     if (impeached || won) return;
+    if (remainingMs <= 0 || remainingMoves <= 0) {
+      checkDefeat();
+      return;
+    }
     audioManager.initAudioContext();
     const result = game.clickCell(r, c);
     if (result.needRedraw) {
       if (result.moved) {
+        remainingMoves--;
         audioManager.playSoundEffect("assets/sounds/move.mp3");
+        // Если ходов мало — тихий пик в другой (низкой) тональности
+        if (remainingMoves <= 20) {
+          audioManager.playBeep(440, 0.08, 0.08);
+        }
       }
       void draw();
     }
   }
 
   function updateStats() {
+    const cats = game.board.allCats();
+    let happy = 0;
+    let unhappy = 0;
+    for (const cat of cats) {
+      const mood = calcMood(game.board, cat.r, cat.c);
+      if (mood >= 1) {
+        happy++;
+      } else {
+        unhappy++;
+      }
+    }
+
+    if (!maxHappyInitialized) {
+      maxHappyCats = happy;
+      maxHappyInitialized = true;
+    } else if (happy > maxHappyCats) {
+      const increase = happy - maxHappyCats; // на сколько вырос максимум
+      countdown.addTime(10_000);
+      remainingMs = countdown.remainingMs;
+      remainingMoves += 5;
+      maxHappyCats = happy;
+      // "Дзинь!" за каждое увеличение максимума на 1
+      for (let i = 0; i < increase; i++) {
+        trackedSetTimeout(() => audioManager.playDing(), i * 150);
+      }
+    }
+
+    // Работа с однократными пиками на 30 и 20 секунд
+    const secondsLeft = Math.ceil(remainingMs / 1000);
+    if (secondsLeft !== lastSecondBeeped) {
+      lastSecondBeeped = secondsLeft;
+
+      if (secondsLeft === 30 && !beeped30) {
+        audioManager.playBeep(1100, 0.2);
+        beeped30 = true;
+      }
+      if (secondsLeft === 20 && !beeped20) {
+        audioManager.playBeep(1200, 0.2);
+        beeped20 = true;
+      }
+    }
+
+    // Проверка на добавление времени (если добавили >30 секунд, сбрасываем beeped30)
+    if (secondsLeft > 30) {
+      beeped30 = false;
+    }
+    if (secondsLeft > 20) {
+      beeped20 = false;
+    }
+
+    audioManager.updateWarningSound(remainingMs);
     const movesMade = game.getMoveCount();
-    stats.innerHTML = `
-      <div class="stat-item">🎯 Ходы: сделано ${movesMade}</div>
+    const compact = isCompactUI();
+    const isTimerCritical = secondsLeft <= 30;
+    const timerColor = isTimerCritical ? "color: #ff3333; font-weight: bold;" : "";
+    // Красным число оставшихся ходов и слово "осталось", когда их меньше 20
+    const movesColor = remainingMoves < 20 ? "color: #ff3333; font-weight: bold;" : "";
+    const remainingMovesHtml = `<span style="${movesColor}">${remainingMoves}</span>`;
+    stats.innerHTML = compact ? `
+      <div class="container-fluid px-0">
+        <div class="row g-2 text-end justify-content-end">
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item" style="${timerColor}">⏱️ Время: осталось ${formatTime(remainingMs)}</div></div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">😊 Довольные: ${happy}</div></div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">⏰ На уровне: ${formatTime(elapsedMs)}</div></div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">😾 Недовольные: ${unhappy}</div></div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">🎯 Ходы: ${remainingMovesHtml}|${movesMade}</div></div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">⭐ Макс. довольных: ${maxHappyCats}</div></div>
+        </div>
+      </div>
+    ` : `
+      <div class="stat-item">🎯 Ходы: <span style="${movesColor}">осталось</span> | сделано (${remainingMovesHtml}/${movesMade})</div>
+      <div class="stat-item" style="${timerColor}">⏱️ Время: осталось ${formatTime(remainingMs)}</div>
+      <div class="stat-item">⏰ На уровне: ${formatTime(elapsedMs)}</div>
+      <div class="stat-item">😊 Довольные: ${happy}</div>
+      <div class="stat-item">😾 Недовольные: ${unhappy}</div>
+      <div class="stat-item">⭐ Макс. довольных: ${maxHappyCats}</div>
     `;
     refitBoard();
     positionStats();

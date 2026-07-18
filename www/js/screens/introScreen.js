@@ -10,11 +10,16 @@ export function showIntroScreen(root) {
   const overlay = document.createElement("div");
   overlay.id = "intro-screen";
 
-  const video = document.createElement("img");
-  video.src = "assets/intro/intro.png";
-  video.alt = "Соционические коты: Королевский котопарк";
-  video.className = "intro-image";
+  const introImg = document.createElement("img");
+  introImg.src = "assets/intro/intro.png";
+  introImg.alt = "Соционические коты";
+  introImg.className = "intro-image";
 
+  // Заголовок "СОБЕРИ ВСЕХ КОРОЛЕЙ"
+  const titleImage = document.createElement("img");
+  titleImage.src = "assets/intro/title.png";
+  titleImage.alt = "СОБЕРИ ВСЕХ КОРОЛЕЙ";
+  titleImage.className = "intro-title-image";
 
   const startBtn = document.createElement("button");
   startBtn.className = "intro-start-btn";
@@ -260,10 +265,11 @@ export function showIntroScreen(root) {
 
   const hero = document.createElement("div");
   hero.className = "intro-hero";
-  hero.appendChild(video);
+  hero.appendChild(introImg);
+  hero.appendChild(titleImage);
+  hero.appendChild(controls);
 
   overlay.appendChild(hero);
-  overlay.appendChild(controls);
   root.appendChild(overlay);
 
   NavigationService.saveCurrentRender(() => showIntroScreen(root));
