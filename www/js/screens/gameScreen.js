@@ -85,6 +85,7 @@ export async function showGameScreen(root, levelId) {
     timer.start((ms) => {
       if (!levelActive) return;
       elapsedMs = ms;
+      updateStats(); // Обновляем интерфейс при каждом тике таймера
     });
     countdown.start(
       (ms) => {
