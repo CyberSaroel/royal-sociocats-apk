@@ -43,6 +43,10 @@ button {
     50% { transform: translateY(-5px); }
   }
 
+  .cell[data-mood="-6"] img.cat,
+  .cell[data-mood="-5"] img.cat,
+  .cell[data-mood="-4"] img.cat,
+  .cell[data-mood="-3"] img.cat,
   .cell[data-mood="-2"] img.cat,
   .cell[data-mood="-1"] img.cat,
   .cell[data-mood="0"] img.cat {
