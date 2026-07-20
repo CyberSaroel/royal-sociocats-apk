@@ -14,3 +14,8 @@ export function calcMood(board, r, c) {
   if (score < -6) score = -6;
   return score;
 }
+
+// Проверка, является ли кот королём
+export function isKing(mood) {
+  return mood >= 6;
+}

@@ -6,7 +6,14 @@ import { saveLevelRecord, saveLevelTimeRecord } from "../levels/levelRecords.js"
 import { LevelTimer, LevelCountdown, formatTime, LEVEL_REMAINING_MOVES_INITIAL } from "../core/levelTimer.js";
 import { showWinScreen } from "./winScreen.js";
 import { showImpeachmentScreen } from "./impeachmentScreen.js";
-import { calcMood } from "../socionics/mood.js";
+import { calcMood, isKing } from "../socionics/mood.js";
+import {
+  onKingCreated,
+  onKingLost,
+  commitLevel,
+  resetLevel,
+  getKingsThisLevel,
+} from "../core/royalEconomy.js";
 import { stopBoardLayoutListener, refitBoard } from "../core/boardLayout.js";
 import { mountFloatingAudioControls } from "../ui/floatingAudioControls.js";
 import { audioManager } from "../core/audioManager.js";
@@ -26,6 +33,22 @@ export async function showGameScreen(root, levelId) {
   }
 
   const game = new Game(level);
+  resetLevel();
+  
+  // Инициализируем previousKings текущими королями доски ДО первой отрисовки
+  function getCurrentKings() {
+    const kings = new Set();
+    const cats = game.board.allCats();
+    for (const cat of cats) {
+      const mood = calcMood(game.board, cat.r, cat.c);
+      if (isKing(mood)) {
+        kings.add(`${cat.r},${cat.c}`);
+      }
+    }
+    return kings;
+  }
+  let previousKings = getCurrentKings();
+  
   root.innerHTML = "";
   root.className = "game-screen";
 
@@ -109,9 +132,13 @@ export async function showGameScreen(root, levelId) {
   const bar = document.createElement("div");
   bar.className = "topbar";
 
+  // Top row: nav elements
+  const topRow = document.createElement("div");
+  topRow.className = "topbar-row";
+
   const title = document.createElement("span");
   title.className = "topbar-title";
-  title.textContent = level.name || ("Уровень " + level.id);
+  title.textContent = "Уровень " + level.id; // Always "Уровень N"
 
   const buttonsWrapper = document.createElement("div");
   buttonsWrapper.className = "topbar-buttons";
@@ -155,15 +182,27 @@ export async function showGameScreen(root, levelId) {
     buttonsWrapper.appendChild(navButtons);
     buttonsWrapper.appendChild(leave);
 
-    bar.appendChild(title);
-    bar.appendChild(buttonsWrapper);
+    topRow.appendChild(title);
+    topRow.appendChild(buttonsWrapper);
   } else {
-    // Desktop layout - new order: prev, title, next, leave
-    bar.appendChild(prevBtn);
-    bar.appendChild(title);
-    bar.appendChild(nextBtn);
-    bar.appendChild(leave);
+    // Desktop layout - prev, title, next, leave in one row
+    topRow.appendChild(prevBtn);
+    topRow.appendChild(title);
+    topRow.appendChild(nextBtn);
+    topRow.appendChild(leave);
   }
+
+  bar.appendChild(topRow);
+
+  // Add subtitle if needed
+  const defaultLevelName = "Уровень " + level.id;
+  if (level.name && level.name !== defaultLevelName) {
+    const subtitle = document.createElement("div");
+    subtitle.className = "topbar-subtitle";
+    subtitle.textContent = level.name;
+    bar.appendChild(subtitle);
+  }
+
   root.appendChild(bar);
 
   const stage = document.createElement("div");
@@ -233,6 +272,7 @@ export async function showGameScreen(root, levelId) {
   function handleImpeachment() {
     if (won || impeached) return;
     impeached = true;
+    resetLevel();
     timer.stop();
     countdown.stop();
     audioManager.playLoseSound();
@@ -247,6 +287,27 @@ export async function showGameScreen(root, levelId) {
       }
     });
     updateStats();
+  }
+
+  // Обновление состояния королей
+  function updateKingTracking() {
+    const currentKings = getCurrentKings();
+    const newKings = new Set();
+    // Новые короли
+    for (const key of currentKings) {
+      if (!previousKings.has(key)) {
+        onKingCreated();
+        newKings.add(key);
+      }
+    }
+    // Потерявшиеся короли
+    for (const key of previousKings) {
+      if (!currentKings.has(key)) {
+        onKingLost();
+      }
+    }
+    previousKings = currentKings;
+    return newKings;
   }
 
   function checkDefeat() {
@@ -338,6 +399,7 @@ export async function showGameScreen(root, levelId) {
     // Красным число оставшихся ходов и слово "осталось", когда их меньше 20
     const movesColor = remainingMoves < 20 ? "color: #ff3333; font-weight: bold;" : "";
     const remainingMovesHtml = `<span style="${movesColor}">${remainingMoves}</span>`;
+    const kingsCount = getKingsThisLevel();
     stats.innerHTML = compact ? `
       <div class="container-fluid px-0">
         <div class="row g-2 text-end justify-content-end">
@@ -347,6 +409,7 @@ export async function showGameScreen(root, levelId) {
           <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">😾 Недовольные: ${unhappy}</div></div>
           <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">🎯 Ходы: ${remainingMovesHtml}|${movesMade}</div></div>
           <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">⭐ Макс. довольных: ${maxHappyCats}</div></div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">👑 Короли: ${kingsCount}</div></div>
         </div>
       </div>
     ` : `
@@ -356,17 +419,41 @@ export async function showGameScreen(root, levelId) {
       <div class="stat-item">😊 Довольные: ${happy}</div>
       <div class="stat-item">😾 Недовольные: ${unhappy}</div>
       <div class="stat-item">⭐ Макс. довольных: ${maxHappyCats}</div>
+      <div class="stat-item">👑 Короли: ${kingsCount}</div>
     `;
     refitBoard();
     positionStats();
   }
 
   async function draw() {
+    const newKings = updateKingTracking();
     await renderBoard(boardEl, game, onCell);
+    
+    // Добавляем золотую вспышку для новых королей
+    if (newKings.size > 0) {
+      const cells = boardEl.querySelectorAll(".cell");
+      for (const key of newKings) {
+        const [r, c] = key.split(",").map(Number);
+        const index = r * game.board.cols + c;
+        if (cells[index]) {
+          const flash = document.createElement("div");
+          flash.className = "golden-flash";
+          cells[index].appendChild(flash);
+          // Удаляем элемент по окончании анимации
+          flash.addEventListener("animationend", () => {
+            if (flash.parentNode) {
+              flash.parentNode.removeChild(flash);
+            }
+          });
+        }
+      }
+    }
+    
     updateStats();
 
     if (game.isWin() && !won && !impeached) {
       won = true;
+      commitLevel();
       const timeMs = timer.stop();
       countdown.stop();
       audioManager.stopWarningBeeps();

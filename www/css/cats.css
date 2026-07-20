@@ -1,3 +1,4 @@
+.cell { position: relative; }
 .cell img.cat { width: var(--cat-size); height: var(--cat-size); pointer-events: none; filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)); position: relative; z-index: 3; }
 .cell .label { margin-top: 2px; font-weight: bold; position: relative; z-index: 3; }
 .cell[data-mood="-6"] .label,
@@ -29,6 +30,37 @@
 .cell[data-mood="0"] img.cat {
   will-change: transform;
   animation: jump 1s ease-in-out infinite;
+}
+
+/* Progressive golden glow for happy cats */
+.cell[data-mood="2"] img.cat {
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 3px rgba(255, 215, 0, 0.35));
+}
+.cell[data-mood="3"] img.cat {
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+}
+.cell[data-mood="4"] img.cat {
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 7px rgba(255, 215, 0, 0.65));
+}
+.cell[data-mood="5"] img.cat {
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+}
+.cell[data-mood="6"] img.cat {
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+}
+
+/* Golden flash for new kings */
+.cell .golden-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 0%, rgba(255, 215, 0, 0) 70%);
+  z-index: 5;
+  pointer-events: none;
+  animation: flash 0.4s ease-out forwards;
+}
+@keyframes flash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 /* Экран победы */
@@ -162,5 +194,20 @@
 @media (min-width: 769px) {
   .cell img.cat {
     filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5));
+  }
+  .cell[data-mood="2"] img.cat {
+    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 3px rgba(255, 215, 0, 0.35));
+  }
+  .cell[data-mood="3"] img.cat {
+    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+  }
+  .cell[data-mood="4"] img.cat {
+    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 7px rgba(255, 215, 0, 0.65));
+  }
+  .cell[data-mood="5"] img.cat {
+    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+  }
+  .cell[data-mood="6"] img.cat {
+    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
   }
 }
