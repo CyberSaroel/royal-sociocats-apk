@@ -191,6 +191,85 @@
   opacity: 0.9;
 }
 
+/* Rocket button styles */
+.rocket-btn {
+  padding: 8px 16px;
+  border: 2px solid #ffd700;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  font-size: 16px;
+}
+
+.rocket-btn:hover {
+  transform: scale(1.05);
+}
+
+.rocket-btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Rocket launch animation */
+.rocket-launch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  animation: rocketFly 0.8s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes rocketFly {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-60px);
+  }
+}
+
+/* Floating text animations */
+.floating-text {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #00ff00;
+  font-weight: bold;
+  font-size: 18px;
+  animation: floatUp 1s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+
+/* Screen shake animation */
+.screen-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
 @media (min-width: 769px) {
   .cell img.cat {
     filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5));

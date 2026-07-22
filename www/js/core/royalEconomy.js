@@ -1,22 +1,29 @@
-const STORAGE_KEY = "socio-cats:kingsTotal";
+const KINGS_STORAGE_KEY = "socio-cats:kingsTotal";
+const ROCKETS_STORAGE_KEY = "socio-cats:rockets";
 
 let kingsThisLevel = 0;
 let kingsTotal = 0;
+let rockets = 0;
 
-// Load kingsTotal from localStorage
+// Load from localStorage
 function loadFromStorage() {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    kingsTotal = stored ? parseInt(stored, 10) : 0;
+    const storedKings = localStorage.getItem(KINGS_STORAGE_KEY);
+    kingsTotal = storedKings ? parseInt(storedKings, 10) : 0;
+
+    const storedRockets = localStorage.getItem(ROCKETS_STORAGE_KEY);
+    rockets = storedRockets ? parseInt(storedRockets, 10) : 0;
   } catch (e) {
     kingsTotal = 0;
+    rockets = 0;
   }
 }
 
-// Save kingsTotal to localStorage
+// Save to localStorage
 function saveToStorage() {
   try {
-    localStorage.setItem(STORAGE_KEY, String(kingsTotal));
+    localStorage.setItem(KINGS_STORAGE_KEY, String(kingsTotal));
+    localStorage.setItem(ROCKETS_STORAGE_KEY, String(rockets));
   } catch (e) {
     // Ignore storage errors
   }
@@ -42,9 +49,10 @@ export function onKingLost() {
 }
 
 /**
- * Commit kingsThisLevel to kingsTotal (called on level victory)
+ * Commit kingsThisLevel to kingsTotal and add rockets (called on level victory)
  */
 export function commitLevel() {
+  rockets += kingsThisLevel;
   kingsTotal += kingsThisLevel;
   saveToStorage();
   kingsThisLevel = 0; // Reset to prevent double counting
@@ -69,4 +77,23 @@ export function getKingsThisLevel() {
  */
 export function getKingsTotal() {
   return kingsTotal;
+}
+
+/**
+ * Get current rockets count
+ */
+export function getRockets() {
+  return rockets;
+}
+
+/**
+ * Spend a rocket, returns true if successful
+ */
+export function spendRocket() {
+  if (rockets > 0) {
+    rockets--;
+    saveToStorage();
+    return true;
+  }
+  return false;
 }

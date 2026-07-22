@@ -2,7 +2,7 @@ import { Game } from "../core/game.js";
 import { renderBoard } from "../core/renderer.js";
 import { fetchLevel } from "../levels/levelLoader.js";
 import { markCompleted } from "../levels/levelProgress.js";
-import { saveLevelRecord, saveLevelTimeRecord } from "../levels/levelRecords.js";
+import { saveLevelRecord, saveLevelTimeRecord, saveLevelKingsRecord } from "../levels/levelRecords.js";
 import { LevelTimer, LevelCountdown, formatTime, LEVEL_REMAINING_MOVES_INITIAL } from "../core/levelTimer.js";
 import { showWinScreen } from "./winScreen.js";
 import { showImpeachmentScreen } from "./impeachmentScreen.js";
@@ -13,6 +13,8 @@ import {
   commitLevel,
   resetLevel,
   getKingsThisLevel,
+  getRockets,
+  spendRocket,
 } from "../core/royalEconomy.js";
 import { stopBoardLayoutListener, refitBoard } from "../core/boardLayout.js";
 import { mountFloatingAudioControls } from "../ui/floatingAudioControls.js";
@@ -48,6 +50,8 @@ export async function showGameScreen(root, levelId) {
     return kings;
   }
   let previousKings = getCurrentKings();
+  // Стартовые короли зачисляются игроку сразу при входе на уровень
+  for (const _ of previousKings) onKingCreated();
   
   root.innerHTML = "";
   root.className = "game-screen";
@@ -340,6 +344,8 @@ export async function showGameScreen(root, levelId) {
     }
   }
 
+  let rocketBtnDisabled = false;
+  let kingsThisLevelAtWin = 0;
   function updateStats() {
     const cats = game.board.allCats();
     let happy = 0;
@@ -399,7 +405,10 @@ export async function showGameScreen(root, levelId) {
     // Красным число оставшихся ходов и слово "осталось", когда их меньше 20
     const movesColor = remainingMoves < 20 ? "color: #ff3333; font-weight: bold;" : "";
     const remainingMovesHtml = `<span style="${movesColor}">${remainingMoves}</span>`;
-    const kingsCount = getKingsThisLevel();
+    const kingsCount = won ? kingsThisLevelAtWin : getKingsThisLevel();
+    const rocketsCount = getRockets();
+    const canUseRocket = !rocketBtnDisabled && rocketsCount > 0 && !won && !impeached;
+    const rocketBtnClass = `rocket-btn ${!canUseRocket ? 'rocket-btn-disabled' : ''}`;
     stats.innerHTML = compact ? `
       <div class="container-fluid px-0">
         <div class="row g-2 text-end justify-content-end">
@@ -410,6 +419,7 @@ export async function showGameScreen(root, levelId) {
           <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">🎯 Ходы: ${remainingMovesHtml}|${movesMade}</div></div>
           <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">⭐ Макс. довольных: ${maxHappyCats}</div></div>
           <div class="col-6 col-sm-4 col-md-3 col-lg-2"><div class="stat-item">👑 Короли: ${kingsCount}</div></div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2"><button class="${rocketBtnClass}" id="rocket-btn" ${!canUseRocket ? 'disabled' : ''}>🚀 Ракеты: ${rocketsCount}</button></div>
         </div>
       </div>
     ` : `
@@ -420,7 +430,63 @@ export async function showGameScreen(root, levelId) {
       <div class="stat-item">😾 Недовольные: ${unhappy}</div>
       <div class="stat-item">⭐ Макс. довольных: ${maxHappyCats}</div>
       <div class="stat-item">👑 Короли: ${kingsCount}</div>
+      <button class="${rocketBtnClass}" id="rocket-btn" ${!canUseRocket ? 'disabled' : ''}>🚀 Ракеты: ${rocketsCount}</button>
     `;
+    // Attach rocket button click listener
+    const rocketBtn = document.getElementById('rocket-btn');
+    if (rocketBtn) {
+      rocketBtn.addEventListener('click', async () => {
+        if (won || impeached || rocketBtnDisabled) return;
+        if (!spendRocket()) return;
+        audioManager.initAudioContext();
+        audioManager.playSoundEffect('assets/sounds/click.mp3'); // Use click as placeholder, or find a better one
+        remainingMoves += 10;
+        countdown.addTime(20_000);
+        remainingMs = countdown.remainingMs;
+        // Disable button temporarily to prevent double click
+        rocketBtnDisabled = true;
+        trackedSetTimeout(() => {
+          rocketBtnDisabled = false;
+          updateStats();
+        }, 500);
+        // Add effects
+        const effects = [];
+        // 1. Rocket launch effect
+        const rocketLaunch = document.createElement('div');
+        rocketLaunch.className = 'rocket-launch';
+        rocketLaunch.textContent = '🚀';
+        rocketBtn.style.position = 'relative';
+        rocketBtn.appendChild(rocketLaunch);
+        rocketLaunch.addEventListener('animationend', () => rocketLaunch.remove());
+        effects.push(rocketLaunch);
+        // 2. +10 moves text
+        const movesStat = stats.querySelector('.stat-item'); // Find moves stat
+        if (movesStat) {
+          const plusMoves = document.createElement('div');
+          plusMoves.className = 'floating-text moves-float';
+          plusMoves.textContent = '+10 ходов';
+          movesStat.style.position = 'relative';
+          movesStat.appendChild(plusMoves);
+          plusMoves.addEventListener('animationend', () => plusMoves.remove());
+          effects.push(plusMoves);
+        }
+        // 3. +20 sec text
+        const timeStats = Array.from(stats.querySelectorAll('.stat-item')).filter(el => el.textContent.includes('Время'));
+        if (timeStats[0]) {
+          const plusTime = document.createElement('div');
+          plusTime.className = 'floating-text time-float';
+          plusTime.textContent = '+20 сек';
+          timeStats[0].style.position = 'relative';
+          timeStats[0].appendChild(plusTime);
+          plusTime.addEventListener('animationend', () => plusTime.remove());
+          effects.push(plusTime);
+        }
+        // 4. Screen shake
+        boardArea.classList.add('screen-shake');
+        boardArea.addEventListener('animationend', () => boardArea.classList.remove('screen-shake'), { once: true });
+        updateStats();
+      });
+    }
     refitBoard();
     positionStats();
   }
@@ -453,6 +519,7 @@ export async function showGameScreen(root, levelId) {
 
     if (game.isWin() && !won && !impeached) {
       won = true;
+      kingsThisLevelAtWin = getKingsThisLevel(); // Save before commit
       commitLevel();
       const timeMs = timer.stop();
       countdown.stop();
@@ -462,11 +529,16 @@ export async function showGameScreen(root, levelId) {
       markCompleted(level.id);
       const moveRecord = saveLevelRecord(level.id, game.getMoveCount());
       const timeRecord = saveLevelTimeRecord(level.id, timeMs);
+      const kingsRecord = saveLevelKingsRecord(level.id, kingsThisLevelAtWin);
       showWinScreen(root, level, {
         moveCount: game.getMoveCount(),
         timeMs,
         moveRecord,
         timeRecord,
+        kingsThisLevel: kingsThisLevelAtWin,
+        kingsRecord,
+        kingsTotal: getKingsTotal(),
+        rocketsTotal: getRockets(),
         onNext: () => {
           leaveLevel(() => NavigationService.navigate("game", () => showGameScreen(root, level.id + 1), { replace: true }));
         },
