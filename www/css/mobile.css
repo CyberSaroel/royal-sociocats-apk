@@ -735,3 +735,37 @@ button {
     font-size: 20px;
   }
 }
+
+/* Stats screen mobile adjustments */
+@media (max-width: 768px) {
+  .stats-grid {
+    margin: 16px auto;
+  }
+
+  .stats-card {
+    padding: 12px 8px;
+    min-height: 70px;
+    font-size: 12px;
+  }
+
+  .stats-card > div:last-child {
+    font-size: 1.3em;
+  }
+}
+
+@media (max-width: 400px) {
+  .stats-card {
+    padding: 10px 6px;
+    min-height: 60px;
+    font-size: 11px;
+  }
+
+  .stats-card > div:last-child {
+    font-size: 1.2em;
+  }
+
+  .kings-total-banner {
+    font-size: 15px;
+    padding: 8px 12px;
+  }
+}

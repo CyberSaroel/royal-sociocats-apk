@@ -1,4 +1,5 @@
 import { getAllRecords } from "../levels/levelRecords.js";
+import { getKingsTotal } from "../core/royalEconomy.js";
 import { audioManager } from "../core/audioManager.js";
 import { formatTime } from "../core/levelTimer.js";
 import NavigationService from "../core/navigation.js";
@@ -22,6 +23,12 @@ export function showRecordsScreen(root) {
   const p = document.createElement("p");
   p.textContent = "Ваши лучшие результаты по уровням";
   root.appendChild(p);
+
+  // Всего добыто королей за всю игру
+  const kingsTotalBanner = document.createElement("div");
+  kingsTotalBanner.className = "kings-total-banner";
+  kingsTotalBanner.textContent = `👑 Всего добыто королей за игру: ${getKingsTotal()}`;
+  root.appendChild(kingsTotalBanner);
 
   const tableContainer = document.createElement("div");
   tableContainer.className = "records-table-container";
