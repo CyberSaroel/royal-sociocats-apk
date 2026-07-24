@@ -13,6 +13,7 @@ import {
   commitLevel,
   resetLevel,
   getKingsThisLevel,
+  getKingsTotal,
   getRockets,
   spendRocket,
 } from "../core/royalEconomy.js";
