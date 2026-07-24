@@ -250,23 +250,7 @@ button {
 
 button:hover { background: var(--button-hover); }
 
-.rocket-btn {
-  width: 100%;
-  min-height: 36px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid #889;
-  background: var(--button-bg);
-  color: var(--button-text);
-  font-size: 13px;
-  line-height: 1.3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
+/* Rocket button styles moved to cats.css for physical button design */
 .rocket-btn-disabled { opacity: 0.5; cursor: default; }
 
 #message {

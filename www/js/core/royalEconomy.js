@@ -51,9 +51,12 @@ export function onKingLost() {
 /**
  * Commit kingsThisLevel to kingsTotal and add rockets (called on level victory)
  */
-export function commitLevel() {
-  rockets += kingsThisLevel;
-  kingsTotal += kingsThisLevel;
+export function commitLevel(amountToAdd) {
+  // amountToAdd — сколько королей реально засчитать в общий счёт.
+  // Если аргумент не передали — ведём себя как раньше (страховка).
+  const add = (amountToAdd === undefined) ? kingsThisLevel : amountToAdd;
+  rockets += add;
+  kingsTotal += add;
   saveToStorage();
   kingsThisLevel = 0; // Reset to prevent double counting
 }

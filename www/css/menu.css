@@ -170,3 +170,30 @@
   align-items: center;
   font-size: 14px;
 }
+
+/* ===== Живые кнопки меню ===== */
+.intro-start-btn,
+.intro-music-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.intro-start-btn:hover,
+.intro-music-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.08);
+}
+.intro-start-btn:active,
+.intro-music-btn:active {
+  transform: scale(0.96);
+}
+
+/* Мягкий пульс главной кнопки «Играть» */
+@keyframes startBtnPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.5); }
+  50%      { box-shadow: 0 0 16px 4px rgba(255, 215, 0, 0.7); }
+}
+.intro-start-btn {
+  animation: startBtnPulse 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-start-btn { animation: none !important; }
+}

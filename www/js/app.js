@@ -24,3 +24,22 @@ NavigationService.init(root);
 NavigationService.currentScreen = "intro";
 NavigationService.saveCurrentRender(() => showIntroScreen(root));
 showIntroScreen(root);
+
+// ==== Автообновление игры (service worker) ====
+if ("serviceWorker" in navigator) {
+  let refreshing = false;
+  // Когда новая версия воркера берёт управление — сами перезагружаем страницу
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
+      .then((reg) => {
+        // Раз в минуту проверяем, не вышла ли новая версия (для уже открытых вкладок)
+        setInterval(() => reg.update(), 60 * 1000);
+      })
+      .catch(() => {});
+  });
+}

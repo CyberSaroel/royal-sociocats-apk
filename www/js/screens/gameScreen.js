@@ -2,7 +2,7 @@ import { Game } from "../core/game.js";
 import { renderBoard } from "../core/renderer.js";
 import { fetchLevel } from "../levels/levelLoader.js";
 import { markCompleted } from "../levels/levelProgress.js";
-import { saveLevelRecord, saveLevelTimeRecord, saveLevelKingsRecord } from "../levels/levelRecords.js";
+import { saveLevelRecord, saveLevelTimeRecord, saveLevelKingsRecord, getBestKings } from "../levels/levelRecords.js";
 import { LevelTimer, LevelCountdown, formatTime, LEVEL_REMAINING_MOVES_INITIAL } from "../core/levelTimer.js";
 import { showWinScreen } from "./winScreen.js";
 import { showImpeachmentScreen } from "./impeachmentScreen.js";
@@ -273,6 +273,8 @@ export async function showGameScreen(root, levelId) {
   let remainingMoves = LEVEL_REMAINING_MOVES_INITIAL;
   let maxHappyCats = 0;
   let maxHappyInitialized = false;
+  let previousMoods = {};       // настроение котов на прошлой отрисовке (ключ — номер клетки)
+  let previousCatCells = null;  // какие клетки были заняты котами на прошлой отрисовке
 
   function handleImpeachment() {
     if (won || impeached) return;
@@ -347,6 +349,65 @@ export async function showGameScreen(root, levelId) {
 
   let rocketBtnDisabled = false;
   let kingsThisLevelAtWin = 0;
+
+  // Нажатие ракеты. Слушатель ниже вешаем ОДИН раз на блок статистики,
+  // поэтому кнопка срабатывает с первого раза, даже когда счётчики перерисовываются.
+  function useRocket() {
+    if (won || impeached || rocketBtnDisabled) return;
+    if (!spendRocket()) return;
+    audioManager.initAudioContext();
+    audioManager.playSoundEffect("assets/sounds/click.mp3");
+    remainingMoves += 10;
+    countdown.addTime(20_000);
+    remainingMs = countdown.remainingMs;
+    rocketBtnDisabled = true;
+    trackedSetTimeout(() => { rocketBtnDisabled = false; updateStats(); }, 500);
+    updateStats();       // сперва обновляем цифры
+    showRocketBoost();   // потом показываем поверх: куда прибавилось + полёт ракеты
+  }
+
+  // Показываем, КУДА прибавились цифры (надпись + подсветка над счётчиком) и запускаем ракету.
+  function showRocketBoost() {
+    const items = Array.from(stats.querySelectorAll(".stat-item"));
+    const find = (word) => items.find((el) => el.textContent.includes(word));
+    const targets = [
+      { el: find("Ходы"),   text: "+10 ходов" },
+      { el: find("Время"),  text: "+20 сек" },
+      { el: find("Ракеты"), text: "-1 🚀" },
+    ];
+    for (const t of targets) {
+      if (!t.el) continue;
+      const rect = t.el.getBoundingClientRect();
+      const glow = document.createElement("div");
+      glow.className = "boost-glow";
+      glow.style.left = rect.left + "px";
+      glow.style.top = rect.top + "px";
+      glow.style.width = rect.width + "px";
+      glow.style.height = rect.height + "px";
+      document.body.appendChild(glow);
+      glow.addEventListener("animationend", () => glow.remove());
+      const float = document.createElement("div");
+      float.className = "boost-float";
+      float.textContent = t.text;
+      float.style.left = (rect.left + rect.width / 2) + "px";
+      float.style.top = rect.top + "px";
+      document.body.appendChild(float);
+      float.addEventListener("animationend", () => float.remove());
+    }
+    const rocket = document.createElement("div");
+    rocket.className = "rocket-fly-big";
+    rocket.textContent = "🚀";
+    boardArea.appendChild(rocket);
+    rocket.addEventListener("animationend", () => rocket.remove());
+    boardArea.classList.add("screen-shake");
+    boardArea.addEventListener("animationend", () => boardArea.classList.remove("screen-shake"), { once: true });
+  }
+
+  // Один слушатель на весь блок статистики — переживает перерисовку кнопки.
+  stats.addEventListener("click", (e) => {
+    if (e.target.closest("#rocket-btn")) useRocket();
+  });
+
   function updateStats() {
     const cats = game.board.allCats();
     let happy = 0;
@@ -433,61 +494,7 @@ export async function showGameScreen(root, levelId) {
       <div class="stat-item">👑 Короли: ${kingsCount}</div>
       <button class="${rocketBtnClass}" id="rocket-btn" ${!canUseRocket ? 'disabled' : ''}>🚀 Ракеты: ${rocketsCount}</button>
     `;
-    // Attach rocket button click listener
-    const rocketBtn = document.getElementById('rocket-btn');
-    if (rocketBtn) {
-      rocketBtn.addEventListener('click', async () => {
-        if (won || impeached || rocketBtnDisabled) return;
-        if (!spendRocket()) return;
-        audioManager.initAudioContext();
-        audioManager.playSoundEffect('assets/sounds/click.mp3'); // Use click as placeholder, or find a better one
-        remainingMoves += 10;
-        countdown.addTime(20_000);
-        remainingMs = countdown.remainingMs;
-        // Disable button temporarily to prevent double click
-        rocketBtnDisabled = true;
-        trackedSetTimeout(() => {
-          rocketBtnDisabled = false;
-          updateStats();
-        }, 500);
-        // Add effects
-        const effects = [];
-        // 1. Rocket launch effect
-        const rocketLaunch = document.createElement('div');
-        rocketLaunch.className = 'rocket-launch';
-        rocketLaunch.textContent = '🚀';
-        rocketBtn.style.position = 'relative';
-        rocketBtn.appendChild(rocketLaunch);
-        rocketLaunch.addEventListener('animationend', () => rocketLaunch.remove());
-        effects.push(rocketLaunch);
-        // 2. +10 moves text
-        const movesStat = stats.querySelector('.stat-item'); // Find moves stat
-        if (movesStat) {
-          const plusMoves = document.createElement('div');
-          plusMoves.className = 'floating-text moves-float';
-          plusMoves.textContent = '+10 ходов';
-          movesStat.style.position = 'relative';
-          movesStat.appendChild(plusMoves);
-          plusMoves.addEventListener('animationend', () => plusMoves.remove());
-          effects.push(plusMoves);
-        }
-        // 3. +20 sec text
-        const timeStats = Array.from(stats.querySelectorAll('.stat-item')).filter(el => el.textContent.includes('Время'));
-        if (timeStats[0]) {
-          const plusTime = document.createElement('div');
-          plusTime.className = 'floating-text time-float';
-          plusTime.textContent = '+20 сек';
-          timeStats[0].style.position = 'relative';
-          timeStats[0].appendChild(plusTime);
-          plusTime.addEventListener('animationend', () => plusTime.remove());
-          effects.push(plusTime);
-        }
-        // 4. Screen shake
-        boardArea.classList.add('screen-shake');
-        boardArea.addEventListener('animationend', () => boardArea.classList.remove('screen-shake'), { once: true });
-        updateStats();
-      });
-    }
+    // Кнопку ракеты теперь обрабатывает useRocket (делегированный слушатель выше).
     refitBoard();
     positionStats();
   }
@@ -516,12 +523,43 @@ export async function showGameScreen(root, levelId) {
       }
     }
     
+    // === Анимации котов: приземление после хода + превращение при смене настроения ===
+    const animCells = boardEl.querySelectorAll(".cell");
+    const curMoods = {};
+    const curCatCells = new Set();
+    animCells.forEach((cell, index) => {
+      if (cell.dataset.mood === undefined) return;
+      curCatCells.add(index);
+      curMoods[index] = cell.dataset.mood;
+    });
+    animCells.forEach((cell, index) => {
+      if (cell.dataset.mood === undefined) return;
+      const catImg = cell.querySelector(".cat");
+      if (!catImg) return;
+      const arrived = previousCatCells && !previousCatCells.has(index);
+      const moodChanged = previousMoods[index] !== undefined && previousMoods[index] !== curMoods[index];
+      if (arrived) {
+        catImg.classList.add("cat-land");
+        catImg.addEventListener("animationend", () => catImg.classList.remove("cat-land"), { once: true });
+      } else if (moodChanged) {
+        catImg.classList.add("mood-change");
+        catImg.addEventListener("animationend", () => catImg.classList.remove("mood-change"), { once: true });
+      }
+    });
+    previousMoods = curMoods;
+    previousCatCells = curCatCells;
+
     updateStats();
 
     if (game.isWin() && !won && !impeached) {
       won = true;
       kingsThisLevelAtWin = getKingsThisLevel(); // Save before commit
-      commitLevel();
+      // --- Анти-фарм: в общий счёт идёт только прибавка над прошлым рекордом уровня ---
+      const prevBestKings = getBestKings(level.id); // лучшее число королей на уровне (или undefined, если ещё не проходили)
+      const kingsDelta = (prevBestKings === undefined)
+        ? kingsThisLevelAtWin                              // первый раз — засчитываем всё
+        : Math.max(0, kingsThisLevelAtWin - prevBestKings); // дальше — только сколько СВЕРХ прошлого рекорда
+      commitLevel(kingsDelta);
       const timeMs = timer.stop();
       countdown.stop();
       audioManager.stopWarningBeeps();
