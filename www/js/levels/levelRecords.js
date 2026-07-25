@@ -5,7 +5,8 @@ function normalizeRecord(raw) {
   if (typeof raw === "number") return { moves: raw };
   return {
     moves: raw.moves,
-    timeMs: raw.timeMs
+    timeMs: raw.timeMs,
+    kings: raw.kings
   };
 }
 
@@ -55,6 +56,22 @@ export function saveLevelTimeRecord(levelId, timeMs) {
   return { isNewRecord: false, improvement: 0, previousBest: currentBest };
 }
 
+export function saveLevelKingsRecord(levelId, kings) {
+  const records = getLevelRecords();
+  const entry = getRecordEntry(records, levelId);
+  const currentBest = entry.kings;
+
+  if (currentBest === undefined || kings > currentBest) {
+    const improvement = currentBest !== undefined ? kings - currentBest : 0;
+    entry.kings = kings;
+    records[levelId] = entry;
+    localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+    return { isNewRecord: true, improvement, previousBest: currentBest };
+  }
+
+  return { isNewRecord: false, improvement: 0, previousBest: currentBest };
+}
+
 export function getBestMoveCount(levelId) {
   const records = getLevelRecords();
   return getRecordEntry(records, levelId).moves;
@@ -63,6 +80,11 @@ export function getBestMoveCount(levelId) {
 export function getBestTime(levelId) {
   const records = getLevelRecords();
   return getRecordEntry(records, levelId).timeMs;
+}
+
+export function getBestKings(levelId) {
+  const records = getLevelRecords();
+  return getRecordEntry(records, levelId).kings;
 }
 
 export function getAllRecords() {

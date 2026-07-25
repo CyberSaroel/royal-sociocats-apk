@@ -1,4 +1,5 @@
 import { getAllRecords } from "../levels/levelRecords.js";
+import { getKingsTotal } from "../core/royalEconomy.js";
 import { audioManager } from "../core/audioManager.js";
 import { formatTime } from "../core/levelTimer.js";
 import NavigationService from "../core/navigation.js";
@@ -23,6 +24,12 @@ export function showRecordsScreen(root) {
   p.textContent = "Ваши лучшие результаты по уровням";
   root.appendChild(p);
 
+  // Всего добыто королей за всю игру
+  const kingsTotalBanner = document.createElement("div");
+  kingsTotalBanner.className = "kings-total-banner";
+  kingsTotalBanner.textContent = `👑 Всего добыто королей за игру: ${getKingsTotal()}`;
+  root.appendChild(kingsTotalBanner);
+
   const tableContainer = document.createElement("div");
   tableContainer.className = "records-table-container";
   root.appendChild(tableContainer);
@@ -34,8 +41,9 @@ export function showRecordsScreen(root) {
   const headerRow = document.createElement("tr");
   headerRow.innerHTML = `
     <th>Уровень</th>
-    <th>Лучший результат (ходов)</th>
-    <th>Лучшее время</th>
+    <th>Ходы</th>
+    <th>Время</th>
+    <th>Короли</th>
   `;
   thead.appendChild(headerRow);
   table.appendChild(thead);
@@ -49,7 +57,7 @@ export function showRecordsScreen(root) {
   if (sortedLevelIds.length === 0) {
     const emptyRow = document.createElement("tr");
     const emptyCell = document.createElement("td");
-    emptyCell.colSpan = 3;
+    emptyCell.colSpan = 4;
     emptyCell.textContent = "Пока нет рекордов. Пройдите уровни!";
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);
@@ -58,11 +66,13 @@ export function showRecordsScreen(root) {
       const entry = records[levelId];
       const moves = entry.moves !== undefined ? entry.moves : "—";
       const time = entry.timeMs !== undefined ? formatTime(entry.timeMs) : "—";
+      const kings = entry.kings !== undefined ? entry.kings : "—";
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>Уровень ${levelId}</td>
         <td>${moves}</td>
         <td>${time}</td>
+        <td>${kings}</td>
       `;
       tbody.appendChild(row);
     }

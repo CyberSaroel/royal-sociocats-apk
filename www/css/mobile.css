@@ -43,6 +43,10 @@ button {
     50% { transform: translateY(-5px); }
   }
 
+  .cell[data-mood="-6"] img.cat,
+  .cell[data-mood="-5"] img.cat,
+  .cell[data-mood="-4"] img.cat,
+  .cell[data-mood="-3"] img.cat,
   .cell[data-mood="-2"] img.cat,
   .cell[data-mood="-1"] img.cat,
   .cell[data-mood="0"] img.cat {
@@ -104,6 +108,14 @@ button {
     flex-shrink: 0;
   }
 
+  .topbar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    width: 100%;
+  }
+
   .topbar-buttons {
     display: flex;
     flex-direction: column;
@@ -128,6 +140,10 @@ button {
     line-height: 1.35;
     padding: 0 3px;
     text-align: center;
+  }
+
+  .topbar-subtitle {
+    font-size: 12px;
   }
 
   .topbar-prev,
@@ -368,6 +384,7 @@ button {
 
   .intro-hero {
     max-width: min(360px, 92vw);
+    gap: 8px;
   }
 
   .intro-image {
@@ -445,6 +462,8 @@ button {
     display: block;
     grid-template-columns: none;
   }
+
+  .rocket-btn-disabled { opacity: 0.5; cursor: default; }
 
   .game-stage .stats .stat-item {
     padding: 6px 8px;
@@ -559,7 +578,7 @@ button {
   }
 
   .intro-title-image {
-    margin: 4px 0;
+    margin: 0;
   }
 
   /* Reduce records table spacing */
@@ -678,5 +697,61 @@ button {
 
   .topbar-title {
     font-size: 12px !important;
+  }
+}
+
+/* Version label for mobile */
+@media (max-width: 768px) {
+  .version-label {
+    bottom: max(6px, env(safe-area-inset-bottom));
+    right: max(8px, env(safe-area-inset-right));
+    /* If mobile audio bar is present, move to left to avoid overlap */
+    left: auto;
+  }
+  
+  body:has(.mobile-audio-bar) .version-label {
+    right: auto;
+    left: max(8px, env(safe-area-inset-left));
+  }
+}
+
+/* King rain animation for mobile */
+@media (max-width: 768px) {
+  .king-rain-item {
+    font-size: 20px;
+  }
+}
+
+/* Stats screen mobile adjustments */
+@media (max-width: 768px) {
+  .stats-grid {
+    margin: 16px auto;
+  }
+
+  .stats-card {
+    padding: 12px 8px;
+    min-height: 70px;
+    font-size: 12px;
+  }
+
+  .stats-card > div:last-child {
+    font-size: 1.3em;
+  }
+}
+
+@media (max-width: 400px) {
+  .stats-card {
+    padding: 10px 6px;
+    min-height: 60px;
+    font-size: 11px;
+  }
+
+  .stats-card > div:last-child {
+    font-size: 1.2em;
+  }
+
+  .kings-total-banner {
+    font-size: 15px;
+    padding: 8px 12px;
   }
 }
