@@ -44,18 +44,10 @@ h1 { margin: 10px 0; }
 
 .topbar {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 760px;
-  margin: 0 auto 12px;
-  gap: 8px;
-}
-
-.topbar-row {
-  display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  max-width: 760px;
+  margin: 0 auto 12px;
   gap: 8px;
 }
 
@@ -75,18 +67,6 @@ h1 { margin: 10px 0; }
   font-weight: bold;
   font-size: 18px;
   flex-shrink: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-.topbar-subtitle {
-  width: 100%;
-  text-align: center;
-  overflow-wrap: break-word;
-  font-size: 14px;
-  color: var(--text-color);
 }
 
 .game-screen {
@@ -250,9 +230,6 @@ button {
 
 button:hover { background: var(--button-hover); }
 
-/* Rocket button styles moved to cats.css for physical button design */
-.rocket-btn-disabled { opacity: 0.5; cursor: default; }
-
 #message {
   font-size: 20px;
   font-weight: bold;
@@ -353,40 +330,6 @@ button:hover { background: var(--button-hover); }
   background: var(--primary-color, #d4a017);
   color: #fff;
   white-space: nowrap;
-  animation: goldPulse 1.5s ease-in-out 2;
-}
-
-@keyframes goldPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(212, 160, 23, 0.7);
-  }
-  50% {
-    transform: scale(1.08);
-    box-shadow: 0 0 0 6px rgba(212, 160, 23, 0);
-  }
-}
-
-.king-rain {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9998;
-}
-
-.king-rain-item {
-  position: absolute;
-  font-size: 24px;
-  animation: kingFall 1.5s linear forwards;
-}
-
-@keyframes kingFall {
-  to {
-    transform: translateY(110vh) rotate(360deg);
-  }
 }
 
 .win-stat-value {
@@ -438,17 +381,6 @@ button:hover { background: var(--button-hover); }
   background: var(--button-hover);
 }
 
-.kings-total-banner {
-  margin: 12px auto;
-  padding: 10px 16px;
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 12px;
-  background: rgba(255, 215, 0, 0.15);
-  border: 1px solid rgba(255, 215, 0, 0.5);
-}
-
 .win-btn {
   background: var(--button-bg);
   border: 2px solid var(--primary-color);
@@ -475,7 +407,6 @@ button:hover { background: var(--button-hover); }
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 15px;
 }
 
 .intro-image {
@@ -492,7 +423,7 @@ button:hover { background: var(--button-hover); }
   max-width: 100%;
   width: 100%;
   height: auto;
-  margin: 0;
+  margin: 8px 0;
 }
 
 .intro-title {
@@ -566,8 +497,7 @@ button:hover { background: var(--button-hover); }
   transform: scale(1.05);
 }
 
-/* Version label */
-.version-label {
+#version-display {
   position: fixed;
   bottom: 6px;
   right: 8px;
@@ -576,5 +506,5 @@ button:hover { background: var(--button-hover); }
   opacity: 0.45;
   pointer-events: none;
   user-select: none;
-  z-index: 1001; /* выше футера и панелей */
+  z-index: 1001;
 }

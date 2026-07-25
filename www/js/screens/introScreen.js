@@ -1,7 +1,6 @@
 import { showLevelSelect } from "./levelSelect.js";
 import { showRulesScreen } from "./rulesScreen.js";
 import { showThemeSelect } from "./themeSelect.js";
-import { showStatsScreen } from "./statsScreen.js";
 import { audioManager, isMusicEnabled, setMusicEnabled, isSfxEnabled, setSfxEnabled, getMusicVolume, setMusicVolume, getSfxVolume, setSfxVolume } from "../core/audioManager.js";
 import NavigationService from "../core/navigation.js";
 
@@ -11,15 +10,19 @@ export function showIntroScreen(root) {
   const overlay = document.createElement("div");
   overlay.id = "intro-screen";
 
-  const introImg = document.createElement("img");
-  introImg.src = "assets/intro/intro.png";
-  introImg.alt = "Соционические коты";
-  introImg.className = "intro-image";
+  const video = document.createElement("video");
+  video.src = "assets/intro/intro.mp4";
+  video.alt = "Соционические коты";
+  video.className = "intro-image";
+  video.autoplay = true;
+  video.loop = true;
+  video.muted = true;
+  video.playsInline = true;
 
-  // Заголовок "СОБЕРИ ВСЕХ КОРОЛЕЙ"
+  // Заголовок "ВОЗРОЖДЕНИЕ КОТОПАРКА"
   const titleImage = document.createElement("img");
   titleImage.src = "assets/intro/title.png";
-  titleImage.alt = "СОБЕРИ ВСЕХ КОРОЛЕЙ";
+  titleImage.alt = "ВОЗРОЖДЕНИЕ КОТОПАРКА";
   titleImage.className = "intro-title-image";
 
   const startBtn = document.createElement("button");
@@ -49,16 +52,6 @@ export function showIntroScreen(root) {
     audioManager.initAudioContext();
     audioManager.playSoundEffect("assets/sounds/click.mp3");
     NavigationService.navigate("themeSelect", () => showThemeSelect(root));
-  });
-
-  // Stats button
-  const statsBtn = document.createElement("button");
-  statsBtn.className = "intro-music-btn";
-  statsBtn.textContent = "📊 Статистика";
-  statsBtn.addEventListener("click", () => {
-    audioManager.initAudioContext();
-    audioManager.playSoundEffect("assets/sounds/click.mp3");
-    NavigationService.navigate("stats", () => showStatsScreen(root));
   });
 
   // Wrapper for music controls
@@ -172,7 +165,6 @@ export function showIntroScreen(root) {
   controls.appendChild(startBtn);
   controls.appendChild(rulesBtn);
   controls.appendChild(themeBtn);
-  controls.appendChild(statsBtn);
   controls.appendChild(musicWrapper);
 
   // Wrapper for SFX controls
@@ -277,11 +269,11 @@ export function showIntroScreen(root) {
 
   const hero = document.createElement("div");
   hero.className = "intro-hero";
-  hero.appendChild(introImg);
+  hero.appendChild(video);
   hero.appendChild(titleImage);
-  hero.appendChild(controls);
 
   overlay.appendChild(hero);
+  overlay.appendChild(controls);
   root.appendChild(overlay);
 
   NavigationService.saveCurrentRender(() => showIntroScreen(root));
