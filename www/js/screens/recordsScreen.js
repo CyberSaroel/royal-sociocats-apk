@@ -1,5 +1,6 @@
 import { getAllRecords } from "../levels/levelRecords.js";
 import { getKingsTotal } from "../core/royalEconomy.js";
+import { getTotalMoves, getTotalTimeMs } from "../core/gameStats.js";
 import { audioManager } from "../core/audioManager.js";
 import { formatTime } from "../core/levelTimer.js";
 import NavigationService from "../core/navigation.js";
@@ -29,6 +30,16 @@ export function showRecordsScreen(root) {
   kingsTotalBanner.className = "kings-total-banner";
   kingsTotalBanner.textContent = `👑 Всего добыто королей за игру: ${getKingsTotal()}`;
   root.appendChild(kingsTotalBanner);
+
+  const movesTotalBanner = document.createElement("div");
+  movesTotalBanner.className = "kings-total-banner";
+  movesTotalBanner.textContent = `🎯 Всего потраченных ходов: ${getTotalMoves()}`;
+  root.appendChild(movesTotalBanner);
+
+  const timeTotalBanner = document.createElement("div");
+  timeTotalBanner.className = "kings-total-banner";
+  timeTotalBanner.textContent = `⏱️ Всего потраченного времени: ${formatTime(getTotalTimeMs())}`;
+  root.appendChild(timeTotalBanner);
 
   const tableContainer = document.createElement("div");
   tableContainer.className = "records-table-container";

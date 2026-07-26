@@ -21,6 +21,7 @@ import { stopBoardLayoutListener, refitBoard } from "../core/boardLayout.js";
 import { mountFloatingAudioControls } from "../ui/floatingAudioControls.js";
 import { audioManager } from "../core/audioManager.js";
 import NavigationService from "../core/navigation.js";
+import { addTotalMoves, addTotalTime } from "../core/gameStats.js";
 
 function isCompactUI() {
   return window.matchMedia("(max-width: 768px)").matches;
@@ -89,6 +90,7 @@ export async function showGameScreen(root, levelId) {
   function cleanupLevel() {
     if (cleanedUp) return;
     cleanedUp = true;
+    addTotalTime(elapsedMs); // копим общее время игры
     levelActive = false;
     timer.destroy();
     countdown.destroy();
@@ -337,6 +339,7 @@ export async function showGameScreen(root, levelId) {
     if (result.needRedraw) {
       if (result.moved) {
         remainingMoves--;
+        addTotalMoves(1); // копим общее число ходов за всю игру
         audioManager.playSoundEffect("assets/sounds/move.mp3");
         // Если ходов мало — тихий пик в другой (низкой) тональности
         if (remainingMoves <= 20) {
@@ -578,6 +581,7 @@ export async function showGameScreen(root, levelId) {
         kingsRecord,
         kingsTotal: getKingsTotal(),
         rocketsTotal: getRockets(),
+        rocketsGained: kingsDelta,
         onNext: () => {
           leaveLevel(() => NavigationService.navigate("game", () => showGameScreen(root, level.id + 1), { replace: true }));
         },

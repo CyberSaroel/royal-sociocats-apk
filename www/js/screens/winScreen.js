@@ -98,7 +98,7 @@ function buildStatRow({ label, value, detail, isNewRecord }) {
   return row;
 }
 
-function buildWinStats(moveCount, timeMs, moveRecord, timeRecord, kingsThisLevel, kingsRecord, rocketsTotal) {
+function buildWinStats(moveCount, timeMs, moveRecord, timeRecord, kingsThisLevel, kingsRecord, rocketsTotal, rocketsGained) {
   const stats = document.createElement("div");
   stats.className = "win-stats";
 
@@ -128,7 +128,7 @@ function buildWinStats(moveCount, timeMs, moveRecord, timeRecord, kingsThisLevel
   if (rocketsTotal !== undefined) {
     stats.appendChild(buildStatRow({
       label: "Ракет получено",
-      value: `+${kingsThisLevel}`
+      value: `+${rocketsGained}`
     }));
   }
 
@@ -151,6 +151,7 @@ export function showWinScreen(root, level, {
   kingsRecord,
   kingsTotal,
   rocketsTotal,
+  rocketsGained,
   onNext,
   onMenu
 }) {
@@ -165,7 +166,7 @@ export function showWinScreen(root, level, {
   title.className = "win-title";
   title.textContent = "🎉 Все коты зелёные! Уровень пройден";
 
-  const stats = buildWinStats(moveCount, timeMs, moveRecord, timeRecord, kingsThisLevel, kingsRecord, rocketsTotal);
+  const stats = buildWinStats(moveCount, timeMs, moveRecord, timeRecord, kingsThisLevel, kingsRecord, rocketsTotal, rocketsGained);
 
   const btns = document.createElement("div");
   btns.style.display = "flex";
