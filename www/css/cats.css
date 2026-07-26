@@ -328,7 +328,6 @@
 /* Уважаем настройку «уменьшить движение» (для людей, кого укачивает) */
 @media (prefers-reduced-motion: reduce) {
   #board .cell[data-mood],
-  #board .cell[data-mood] .cat,
   #board .cell.selected,
   #board .cell.target {
     animation: none !important;
