@@ -60,7 +60,7 @@ export async function showGameScreen(root, levelId) {
 
   const hud = document.createElement("div");
   hud.className = "game-hud";
-  const audioControls = mountFloatingAudioControls(hud);
+  const audioControls = mountFloatingAudioControls(document.body);
 
   const timer = new LevelTimer();
   const countdown = new LevelCountdown();
@@ -95,7 +95,7 @@ export async function showGameScreen(root, levelId) {
     timer.destroy();
     countdown.destroy();
     stopBoardLayoutListener();
-    audioControls.destroy();
+    // audioControls.destroy(); // Не удаляем кнопки при переходе между уровнями
     audioManager.stopWarningBeeps();
     trackedTimeouts.forEach(id => clearTimeout(id));
     trackedTimeouts.length = 0;

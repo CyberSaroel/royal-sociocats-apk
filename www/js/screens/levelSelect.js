@@ -52,7 +52,7 @@ export async function showLevelSelect(root) {
 
   const recordsBtn = document.createElement("button");
   recordsBtn.className = "records-btn";
-  recordsBtn.textContent = "🏆 Рекорды";
+  recordsBtn.textContent = "🏆 Рекорды и статистика";
   recordsBtn.addEventListener("click", () => {
     audioManager.playSoundEffect("assets/sounds/click.mp3");
     NavigationService.navigate("records", () => showRecordsScreen(root));

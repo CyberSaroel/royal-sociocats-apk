@@ -1,5 +1,5 @@
 .cell { position: relative; }
-.cell img.cat { width: var(--cat-size); height: var(--cat-size); pointer-events: none; filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)); position: relative; z-index: 3; }
+.cell img.cat { width: var(--cat-size); height: var(--cat-size); pointer-events: none; filter: drop-shadow(2px 6px 7px rgba(0, 0, 0, 0.5)); position: relative; z-index: 3; }
 .cell .label { margin-top: 2px; font-weight: bold; position: relative; z-index: 3; }
 .cell[data-mood="-6"] .label,
 .cell[data-mood="-5"] .label,
@@ -34,19 +34,19 @@
 
 /* Progressive golden glow for happy cats */
 .cell[data-mood="2"] img.cat {
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 3px rgba(255, 215, 0, 0.35));
+  filter: drop-shadow(2px 6px 7px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 3px rgba(255, 215, 0, 0.35));
 }
 .cell[data-mood="3"] img.cat {
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+  filter: drop-shadow(2px 6px 7px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
 }
 .cell[data-mood="4"] img.cat {
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 7px rgba(255, 215, 0, 0.65));
+  filter: drop-shadow(2px 6px 7px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 7px rgba(255, 215, 0, 0.65));
 }
 .cell[data-mood="5"] img.cat {
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+  filter: drop-shadow(2px 6px 7px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
 }
 .cell[data-mood="6"] img.cat {
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+  filter: drop-shadow(2px 6px 7px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
 }
 
 /* Golden flash for new kings */
@@ -277,35 +277,26 @@
 
 @media (min-width: 769px) {
   .cell img.cat {
-    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(5px 14px 20px rgba(0, 0, 0, 0.55));
   }
   .cell[data-mood="2"] img.cat {
-    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 3px rgba(255, 215, 0, 0.35));
+    filter: drop-shadow(5px 14px 20px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 3px rgba(255, 215, 0, 0.35));
   }
   .cell[data-mood="3"] img.cat {
-    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+    filter: drop-shadow(5px 14px 20px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
   }
   .cell[data-mood="4"] img.cat {
-    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 7px rgba(255, 215, 0, 0.65));
+    filter: drop-shadow(5px 14px 20px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 7px rgba(255, 215, 0, 0.65));
   }
   .cell[data-mood="5"] img.cat {
-    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+    filter: drop-shadow(5px 14px 20px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
   }
   .cell[data-mood="6"] img.cat {
-    filter: drop-shadow(8px 5px 12px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+    filter: drop-shadow(5px 14px 20px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
   }
 }
 
 /* ===== Супер-анимации котов ===== */
-
-/* Плавное появление кота при каждой перерисовке поля */
-@keyframes catAppear {
-  from { opacity: 0.3; transform: scale(0.9); }
-  to   { opacity: 1;   transform: scale(1); }
-}
-#board .cell[data-mood] {
-  animation: catAppear 0.25s ease-out;
-}
 
 /* Пульсация выбранной клетки */
 @keyframes cellSelectPulse {
@@ -323,15 +314,6 @@
 }
 #board .cell.target {
   animation: cellTargetGlow 1.2s ease-in-out infinite;
-}
-
-/* Уважаем настройку «уменьшить движение» (для людей, кого укачивает) */
-@media (prefers-reduced-motion: reduce) {
-  #board .cell[data-mood],
-  #board .cell.selected,
-  #board .cell.target {
-    animation: none !important;
-  }
 }
 
 /* ===== Ракета: показываем куда прибавилось + полёт (вау) ===== */
@@ -397,17 +379,8 @@
   100% { transform: scale(1) rotateY(360deg); filter: brightness(1); }
 }
 #board .cell .cat.mood-change {
-  animation: moodChange 0.6s ease-out !important;
+  animation: moodChange 0.8s ease-out !important;
   z-index: 6;
-}
-@media (prefers-reduced-motion: reduce) {
-  .boost-float,
-  .boost-glow,
-  .rocket-fly-big,
-  #board .cell .cat.cat-land,
-  #board .cell .cat.mood-change {
-    animation: none !important;
-  }
 }
 
 /* Мобильная версия: кнопка "Ракеты" — размером с окошки-счётчики рядом */

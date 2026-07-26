@@ -1,5 +1,5 @@
 import { getAllRecords } from "../levels/levelRecords.js";
-import { getKingsTotal } from "../core/royalEconomy.js";
+import { getKingsTotal, getRockets } from "../core/royalEconomy.js";
 import { getTotalMoves, getTotalTimeMs } from "../core/gameStats.js";
 import { audioManager } from "../core/audioManager.js";
 import { formatTime } from "../core/levelTimer.js";
@@ -9,7 +9,7 @@ export function showRecordsScreen(root) {
   root.innerHTML = "";
 
   const h = document.createElement("h1");
-  h.textContent = "Таблица рекордов";
+  h.textContent = "🏆 Рекорды и статистика";
   root.appendChild(h);
 
   const backBtn = document.createElement("button");
@@ -40,6 +40,26 @@ export function showRecordsScreen(root) {
   timeTotalBanner.className = "kings-total-banner";
   timeTotalBanner.textContent = `⏱️ Всего потраченного времени: ${formatTime(getTotalTimeMs())}`;
   root.appendChild(timeTotalBanner);
+
+  // === Данные из бывшего экрана «Статистика» ===
+  const statsRecords = getAllRecords();
+  const levelsDone = Object.keys(statsRecords).length;
+  const bestKings = Object.values(statsRecords).reduce((max, r) => (r.kings !== undefined && r.kings > max ? r.kings : max), 0);
+
+  const rocketsBanner = document.createElement("div");
+  rocketsBanner.className = "kings-total-banner";
+  rocketsBanner.textContent = `🚀 Ракет сейчас: ${getRockets()}`;
+  root.appendChild(rocketsBanner);
+
+  const levelsDoneBanner = document.createElement("div");
+  levelsDoneBanner.className = "kings-total-banner";
+  levelsDoneBanner.textContent = `✅ Пройдено уровней: ${levelsDone}`;
+  root.appendChild(levelsDoneBanner);
+
+  const bestKingsBanner = document.createElement("div");
+  bestKingsBanner.className = "kings-total-banner";
+  bestKingsBanner.textContent = `🏅 Рекорд королей за уровень: ${bestKings}`;
+  root.appendChild(bestKingsBanner);
 
   const tableContainer = document.createElement("div");
   tableContainer.className = "records-table-container";

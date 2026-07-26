@@ -3,6 +3,16 @@ import { fitBoardToViewport } from "./boardLayout.js";
 import { bindCellInteraction } from "../ui/cellInteraction.js";
 
 let skinPath = null;
+let imagesPreloaded = false;
+
+function preloadCatImages() {
+  if (imagesPreloaded || !skinPath) return;
+  imagesPreloaded = true;
+  for (let m = -6; m <= 6; m++) {
+    const pre = new Image();
+    pre.src = skinPath.replace("{mood}", m);
+  }
+}
 
 async function loadSkinPath() {
   try {
@@ -20,6 +30,7 @@ async function loadSkinPath() {
 // Чистая отрисовка поля по состоянию игры. Клик пробрасывается через onCell(r, c).
 export async function renderBoard(container, game, onCell) {
   if (!skinPath) skinPath = await loadSkinPath();
+  preloadCatImages();
 
   const board = game.board;
   container.innerHTML = "";
@@ -65,4 +76,5 @@ export async function renderBoard(container, game, onCell) {
 // Сброс кэша скина (для обновления после смены)
 export function resetSkinCache() {
   skinPath = null;
+  imagesPreloaded = false;
 }

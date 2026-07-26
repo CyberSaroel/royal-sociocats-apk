@@ -222,7 +222,11 @@ export function removeFloatingAudioControls() {
 }
 
 export function mountFloatingAudioControls(parent = document.body) {
-  removeFloatingAudioControls();
+  // Если кнопки уже на экране — оставляем их как есть (не мигаем)
+  const existing = document.querySelector(".floating-audio-controls, .mobile-audio-bar");
+  if (existing) {
+    return { destroy() { existing.remove(); } };
+  }
   const useMobileBar = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
   return useMobileBar ? mountMobileBar(parent) : mountDesktopControls(parent);
 }

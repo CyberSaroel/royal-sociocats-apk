@@ -4,9 +4,11 @@ import { showThemeSelect } from "./themeSelect.js";
 import { showStatsScreen } from "./statsScreen.js";
 import { audioManager, isMusicEnabled, setMusicEnabled, isSfxEnabled, setSfxEnabled, getMusicVolume, setMusicVolume, getSfxVolume, setSfxVolume } from "../core/audioManager.js";
 import NavigationService from "../core/navigation.js";
+import { removeFloatingAudioControls } from "../ui/floatingAudioControls.js";
 
 export function showIntroScreen(root) {
   root.innerHTML = "";
+  removeFloatingAudioControls();
 
   const overlay = document.createElement("div");
   overlay.id = "intro-screen";
@@ -49,16 +51,6 @@ export function showIntroScreen(root) {
     audioManager.initAudioContext();
     audioManager.playSoundEffect("assets/sounds/click.mp3");
     NavigationService.navigate("themeSelect", () => showThemeSelect(root));
-  });
-
-  // Stats button
-  const statsBtn = document.createElement("button");
-  statsBtn.className = "intro-music-btn";
-  statsBtn.textContent = "📊 Статистика";
-  statsBtn.addEventListener("click", () => {
-    audioManager.initAudioContext();
-    audioManager.playSoundEffect("assets/sounds/click.mp3");
-    NavigationService.navigate("stats", () => showStatsScreen(root));
   });
 
   // Wrapper for music controls
@@ -172,7 +164,6 @@ export function showIntroScreen(root) {
   controls.appendChild(startBtn);
   controls.appendChild(rulesBtn);
   controls.appendChild(themeBtn);
-  controls.appendChild(statsBtn);
   controls.appendChild(musicWrapper);
 
   // Wrapper for SFX controls

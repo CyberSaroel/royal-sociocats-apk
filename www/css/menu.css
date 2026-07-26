@@ -194,6 +194,3 @@
 .intro-start-btn {
   animation: startBtnPulse 2s ease-in-out infinite;
 }
-@media (prefers-reduced-motion: reduce) {
-  .intro-start-btn { animation: none !important; }
-}
