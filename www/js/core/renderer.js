@@ -1,6 +1,7 @@
 import { getSelectedSkin } from "../screens/skinSelect.js";
 import { fitBoardToViewport } from "./boardLayout.js";
 import { bindCellInteraction } from "../ui/cellInteraction.js";
+import { getTypeDisplayName } from "../socionics/types.js";
 
 let skinPath = null;
 let imagesPreloaded = false;
@@ -59,7 +60,8 @@ export async function renderBoard(container, game, onCell) {
         
         const label = document.createElement("div");
         label.className = "label";
-        label.textContent = board.typeAt(r, c);
+        const typeName = board.typeAt(r, c);
+        label.textContent = getTypeDisplayName(typeName);
         cell.appendChild(img);
         cell.appendChild(label);
       }
