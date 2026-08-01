@@ -1,0 +1,387 @@
+/* ===== Тема «Королевский Котопарк» (книжная: кожа + золото + пергамент) =====
+ * Перенесено из ./anti-kotopark/css/themes.css и ./anti-kotopark/assets/themes/royal-book/theme.css
+ * Палитра источника сохранена 1:1. Стили адаптированы под классы приёмника.
+ *
+ * Светлая схема [data-theme="light"] — МИНИМАЛЬНАЯ ВАРИАЦИЯ:
+ * меняется ТОЛЬКО фон (бежевый) и цвет текста на голом фоне (тёмные чернила).
+ * Все игровые цвета (кожа кнопок, золото, пергамент на плашках) наследуются из :root.
+ *
+ * Шрифт: в источнике книжная тема шрифт не задаёт (в main.css — sans-serif).
+ * ДОДУМАНО: подключён Cormorant Garamond (Google Fonts) с кириллицей.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&subset=cyrillic&display=swap");
+
+/* ===== Книжные цвета (общие) ===== */
+:root {
+  --leather: #5e1638;
+  --leather-top: #8a2350;
+  --leather-bot: #3a0d24;
+  --gilt: #d49a3c;
+  --gilt-highlight: #f3d27a;
+  --parchment: #f4e6b0;
+  --ink: #2a0a14;
+  --font-book: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+}
+
+/* ==== Тёмная (по умолчанию) ==== */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-color: #0a0a14;              /* тёмный бархатный фон */
+  --text-color: #f4e6b0;            /* пергаментный текст */
+  --primary-color: #d49a3c;         /* золото */
+  --primary-hover: #e8b85a;         /* светлое золото */
+
+  --cell-bg: #3d1130;               /* тёмная кожа клеток */
+  --cell-border: #d49a3c;           /* золотая окантовка */
+  --cell-selected: #f4e6b0;         /* пергаментная рамка выбора */
+  --cell-target: #7ac74f;           /* золотисто-зелёная цель */
+  --water-bg: #1a3a5c;              /* чернильно-синяя вода */
+
+  --button-bg: #5e1638;             /* кожа кнопок */
+  --button-hover: #7a2050;
+  --button-text: #f4e6b0;
+
+  --level-btn-bg: #5e1638;
+  --level-btn-done-bg: #2d4a3e;
+  --level-btn-done-border: #d49a3c;
+}
+
+/* ==== Светлая (бежевый фон, всё остальное то же) ==== */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* ЕДИНСТВЕННОЕ изменение фона — тёплый бежевый/пергаментный */
+  --bg-color: #f0e6d2;
+
+  /* ДОДУМАНО: текст на голом фоне переводим на тёмные чернила,
+   * иначе светлый пергамент не читается на бежевом.
+   * Цвета на кожаных плашках/кнопках НЕ затрагиваются (см. ниже). */
+  --text-color: #2a0a14;
+}
+
+/* ==== Общие книжные стили (работают в обеих схемах) ==== */
+body {
+  font-family: var(--font-book), sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+h1, h2, h3, .topbar-title, .intro-title, .win-stat-value {
+  font-family: var(--font-book), Georgia, serif;
+}
+
+.cell {
+  background: var(--cell-bg);
+  border-color: var(--cell-border);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.cell.selected {
+  outline-color: var(--cell-selected);
+}
+
+.cell.target {
+  outline-color: var(--cell-target);
+}
+
+.cell.water {
+  background-color: var(--water-bg);
+}
+
+button {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--cell-border);
+}
+
+button:hover {
+  background: var(--button-hover);
+}
+
+.level-btn {
+  background: var(--level-btn-bg);
+}
+
+/* ДОДУМАНО: перекрываем захардкоженный hover #dde из menu.css приёмника,
+ * чтобы кожаная кнопка уровня оставалась кожаной в обеих схемах. */
+.level-btn:hover {
+  background: var(--button-hover);
+}
+
+.level-btn.done {
+  background: var(--level-btn-done-bg);
+  border-color: var(--level-btn-done-border);
+}
+
+/* ===== Кожаная главная кнопка «Играть» с золотой рамкой ===== */
+.intro-start-btn {
+  background: linear-gradient(180deg, var(--leather-top) 0%, var(--leather) 55%, var(--leather-bot) 100%);
+  border: 2px solid var(--gilt);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(244, 230, 176, 0.25),
+    0 0 12px rgba(212, 154, 60, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.intro-start-btn:hover {
+  filter: brightness(1.08);
+}
+
+/* ===== Тиснение на вторичных кнопках меню ===== */
+.intro-music-btn {
+  background: linear-gradient(180deg, var(--leather-top) 0%, var(--leather) 60%, var(--leather-bot) 100%);
+  border: 1px solid rgba(212, 154, 60, 0.55);
+  color: var(--parchment);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(244, 230, 176, 0.18);
+}
+
+.intro-music-btn:hover {
+  filter: brightness(1.08);
+}
+
+/* ===== Карточки в пергаментно-книжном стиле ===== */
+.settings-section,
+.win-stats,
+.victory-sound-card {
+  background: linear-gradient(135deg, rgba(94, 22, 56, 0.55) 0%, rgba(42, 10, 20, 0.65) 100%);
+  border: 1px solid rgba(212, 154, 60, 0.4);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(244, 230, 176, 0.15);
+}
+
+/* Текст на тёмных плашках всегда пергаментный (в обеих схемах) */
+.settings-section h2,
+.settings-section p,
+.settings-option label,
+.victory-sound-name,
+.victory-sound-desc {
+  color: var(--parchment);
+}
+
+.victory-sound-desc {
+  opacity: 0.75;
+}
+
+/* ===== Таблицы рекордов ===== */
+.records-table {
+  background: var(--button-bg);
+  border: 1px solid var(--cell-border);
+  color: var(--parchment);
+}
+
+.records-table th {
+  background: var(--leather);
+  color: var(--parchment);
+}
+
+.records-table td {
+  border-bottom-color: rgba(212, 154, 60, 0.25);
+}
+
+/* ===== Кнопки победы / импичмента ===== */
+.win-btn {
+  background: var(--button-bg);
+  border-color: var(--cell-border);
+  color: var(--button-text);
+}
+
+.win-btn:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: var(--ink);
+}
+
+/* ===== Кнопки меню (выбор темы, скины, звук победы) в книжном стиле ===== */
+.skin-btn,
+.theme-select-btn,
+.victory-sound-select-btn,
+.settings-btn,
+.back-btn {
+  background: linear-gradient(180deg, var(--leather-top) 0%, var(--leather) 60%, var(--leather-bot) 100%);
+  border: 1px solid rgba(212, 154, 60, 0.55);
+  color: var(--parchment);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(244, 230, 176, 0.18);
+}
+
+.skin-btn:hover,
+.theme-select-btn:hover:not(:disabled),
+.victory-sound-select-btn:hover:not(:disabled),
+.settings-btn:hover,
+.back-btn:hover {
+  background: linear-gradient(180deg, var(--leather) 0%, var(--leather-bot) 100%);
+  filter: brightness(1.08);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(244, 230, 176, 0.18),
+    0 0 10px rgba(212, 154, 60, 0.45);
+}
+
+.skin-btn:disabled,
+.theme-select-btn:disabled,
+.victory-sound-select-btn:disabled {
+  background: #3a3a44;
+  border-color: rgba(212, 154, 60, 0.3);
+  color: rgba(244, 230, 176, 0.5);
+  text-shadow: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ===== Стат-панели HUD в книжном стиле ===== */
+.stat-item {
+  background: var(--level-btn-bg);
+  border: 1px solid rgba(212, 154, 60, 0.45);
+  color: var(--parchment);
+  box-shadow: inset 0 1px 0 rgba(244, 230, 176, 0.12);
+}
+
+/* ===== Карточки скинов и тем (тёмные в обеих схемах) ===== */
+.skin-card,
+.theme-card {
+  background: linear-gradient(135deg, rgba(94, 22, 56, 0.4) 0%, rgba(42, 10, 20, 0.5) 100%);
+  border: 1px solid rgba(212, 154, 60, 0.35);
+}
+
+.skin-card:hover,
+.theme-card:hover {
+  border-color: var(--gilt);
+  box-shadow: 0 4px 12px rgba(212, 154, 60, 0.3);
+}
+
+.skin-card.selected,
+.theme-card.selected {
+  border-color: var(--gilt-highlight);
+  background: linear-gradient(135deg, rgba(139, 35, 80, 0.5) 0%, rgba(42, 10, 20, 0.6) 100%);
+  box-shadow: 0 0 12px rgba(212, 154, 60, 0.35);
+}
+
+.skin-name,
+.theme-name {
+  color: var(--parchment);
+}
+
+.skin-desc,
+.theme-desc {
+  color: rgba(244, 230, 176, 0.7);
+}
+
+/* ===== Кнопки меню уровня (тема, звук победы) в книжном стиле ===== */
+.theme-btn,
+.victory-sound-btn {
+  background: linear-gradient(180deg, var(--leather-top) 0%, var(--leather) 60%, var(--leather-bot) 100%);
+  border: 1px solid rgba(212, 154, 60, 0.55);
+  color: var(--parchment);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(244, 230, 176, 0.18);
+}
+
+.theme-btn:hover,
+.victory-sound-btn:hover {
+  background: linear-gradient(180deg, var(--leather) 0%, var(--leather-bot) 100%);
+  filter: brightness(1.08);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(244, 230, 176, 0.18),
+    0 0 10px rgba(212, 154, 60, 0.45);
+}
+
+/* ===== Номера ходов в кнопках уровня ===== */
+.level-moves {
+  color: rgba(244, 230, 176, 0.65);
+}
+
+/* ===== Кнопки «назад» и прочие вспомогательные ===== */
+.victory-sound-preview-btn {
+  background: linear-gradient(180deg, var(--leather) 0%, var(--leather-bot) 100%);
+  border: 1px solid rgba(212, 154, 60, 0.45);
+  color: var(--parchment);
+}
+
+.victory-sound-preview-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* ===== Лейблы громкости в меню (в источнике — инлайн #333, плохо виден на тёмном) =====
+ * ДОДУМАНО: переопределяем на пергаментный. */
+#intro-screen .intro-music-btn label {
+  color: var(--parchment) !important;
+}
+
+/* ===== Плавный переход темы (фон/текст) =====
+ * ДОДУМАНО: чтобы смена светлая<->тёмная перетекала, а не щёлкала. */
+body,
+#app {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* ===== Кнопка переключения темы на главном экране =====
+ * ДОДУМАНО (план «светлая по умолчанию»): свотч + иконка + микроанимации,
+ * чтобы кнопка выглядела живо в стиле «книжного переплёта». */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.theme-toggle-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--gilt);
+  box-shadow: 0 0 4px rgba(212, 154, 60, 0.5);
+  transition: background-color 0.35s ease, box-shadow 0.35s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle-icon {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle-text {
+  font-size: 16px;
+}
+
+.theme-toggle-btn:hover .theme-toggle-swatch {
+  box-shadow: 0 0 8px rgba(212, 154, 60, 0.8);
+}
+
+.theme-toggle-btn:hover .theme-toggle-icon {
+  transform: scale(1.15);
+}
+
+.theme-toggle-btn:active .theme-toggle-icon {
+  transform: scale(0.9);
+}
+
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--gilt-highlight);
+  outline-offset: 2px;
+}
+
+/* Тактильный штрих при переключении — короткий «переворот» свотча */
+.theme-toggle-btn.theme-toggle-flip .theme-toggle-swatch {
+  animation: themeSwatchFlip 0.35s ease;
+}
+
+@keyframes themeSwatchFlip {
+  0%   { transform: scale(1) rotate(0deg); }
+  40%  { transform: scale(1.3) rotate(180deg); opacity: 0.6; }
+  100% { transform: scale(1) rotate(360deg); }
+}

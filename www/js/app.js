@@ -1,5 +1,6 @@
 import { showIntroScreen } from "./screens/introScreen.js";
 import { applyTheme, getSelectedTheme } from "./screens/themeSelect.js";
+import { applyThemeScheme } from "./theme.js";
 import NavigationService from "./core/navigation.js";
 import { VERSION, saveVersion } from "./core/version.js";
 
@@ -7,6 +8,8 @@ const root = document.getElementById("app");
 
 // Apply selected theme on load
 applyTheme(getSelectedTheme());
+// Apply dark/light scheme for royal-book theme
+applyThemeScheme();
 
 // Save current version
 saveVersion();

@@ -9,6 +9,18 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Соционические коты</title>
+  <script>
+    // Устанавливаем схему темы ДО отрисовки, чтобы не было вспышки не той темы.
+    // Первый запуск (localStorage пуст) → светлая тема «Королевский Котопарк».
+    (function () {
+      try {
+        var t = localStorage.getItem('rsc_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="vendor/bootstrap/bootstrap-grid.min.css">
   <link rel="stylesheet" href="vendor/bootstrap/bootstrap-utilities.min.css">
   <link rel="stylesheet" href="css/main.css">
@@ -16,7 +28,7 @@
   <link rel="stylesheet" href="css/board.css">
   <link rel="stylesheet" href="css/cats.css">
   <link rel="stylesheet" href="css/mobile.css">
-  <link id="theme-link" rel="stylesheet" href="assets/themes/neon-light/theme.css">
+  <link id="theme-link" rel="stylesheet" href="css/theme-royal.css">
 </head>
 <body>
   <div id="app"></div>
@@ -28,6 +40,6 @@
     <p>100-й уровень посвящён Андрею Бобину и воспроизводит финальный уровень оригинальной игры.</p>
     <p>Идея сиквела и постановка технического задания: Ярослав Полозов.</p>
   </footer>
-  <script type="module" src="js/app.js?v=1.6.0"></script>
+  <script type="module" src="js/app.js?v=1.7.0"></script>
 </body>
 </html>

@@ -1,6 +1,17 @@
 {
   "themes": [
     {
+      "id": "royal-book",
+      "name": "Королевский Котопарк",
+      "description": "Книжная тема: кожа, золото и пергамент",
+      "cssFile": "css/theme-royal.css",
+      "preview": {
+        "background": "#0a0a14",
+        "primary": "#d49a3c",
+        "cell": "#3d1130"
+      }
+    },
+    {
       "id": "neon-light",
       "name": "Неоновая (светлая)",
       "description": "Яркая неоновая тема на светлом фоне",
@@ -144,5 +155,5 @@
       }
     }
   ],
-  "defaultTheme": "neon-light"
+  "defaultTheme": "royal-book"
 }
